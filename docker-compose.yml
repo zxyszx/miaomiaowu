@@ -1,8 +1,6 @@
-version: '3.8'
-
 services:
   miaomiaowu:
-    image: ghcr.io/iluobei/miaomiaowu:latest
+    image: miaomiaowu-parking:latest
     container_name: miaomiaowu
     restart: unless-stopped
     user: root
@@ -15,7 +13,7 @@ services:
       - "8080:8080"
 
     volumes:
-      - ./data:/app/data
+      - parking_data:/app/data
       - ./subscribes:/app/subscribes
       - ./rule_templates:/app/rule_templates
 
@@ -25,3 +23,8 @@ services:
       timeout: 3s
       start_period: 5s
       retries: 3
+
+volumes:
+  parking_data:
+    external: true
+    name: miaomiaowu_data

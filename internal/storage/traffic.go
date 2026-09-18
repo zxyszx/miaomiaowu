@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/rand"
 	"database/sql"
+	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -41,7 +42,8 @@ type TrafficRecord struct {
 
 // TrafficRepository manages persistence of traffic usage snapshots.
 type TrafficRepository struct {
-	db *sql.DB
+	db         *sql.DB
+	parkingKey []byte
 }
 
 // SubscriptionLink represents a configurable subscription entry exposed to clients.
@@ -444,13 +446,51 @@ func NewTrafficRepository(path string) (*TrafficRepository, error) {
 		return nil, fmt.Errorf("set sqlite journal size limit: %w", err)
 	}
 
-	repo := &TrafficRepository{db: db}
+	parkingKey, err := loadParkingEncryptionKey(path)
+	if err != nil {
+		_ = db.Close()
+		return nil, err
+	}
+	repo := &TrafficRepository{db: db, parkingKey: parkingKey}
 	if err := repo.migrate(); err != nil {
 		_ = db.Close()
 		return nil, err
 	}
 
 	return repo, nil
+}
+
+func loadParkingEncryptionKey(dbPath string) ([]byte, error) {
+	if encoded := strings.TrimSpace(os.Getenv("PARKING_ENCRYPTION_KEY")); encoded != "" {
+		key, err := base64.StdEncoding.DecodeString(encoded)
+		if err != nil || len(key) != 32 {
+			return nil, errors.New("PARKING_ENCRYPTION_KEY must be base64-encoded 32 bytes")
+		}
+		return key, nil
+	}
+
+	if dbPath == ":memory:" || strings.HasPrefix(dbPath, "file:") {
+		key := make([]byte, 32)
+		_, err := rand.Read(key)
+		return key, err
+	}
+	keyPath := filepath.Join(filepath.Dir(dbPath), ".parking.key")
+	if key, err := os.ReadFile(keyPath); err == nil {
+		if len(key) != 32 {
+			return nil, fmt.Errorf("invalid parking encryption key length in %s", keyPath)
+		}
+		return key, nil
+	} else if !errors.Is(err, os.ErrNotExist) {
+		return nil, fmt.Errorf("read parking encryption key: %w", err)
+	}
+	key := make([]byte, 32)
+	if _, err := rand.Read(key); err != nil {
+		return nil, fmt.Errorf("generate parking encryption key: %w", err)
+	}
+	if err := os.WriteFile(keyPath, key, 0o600); err != nil {
+		return nil, fmt.Errorf("write parking encryption key: %w", err)
+	}
+	return key, nil
 }
 
 // Close releases the underlying database resources.
@@ -1373,6 +1413,10 @@ CREATE TABLE IF NOT EXISTS rule_providers (
 	}
 
 	if err := r.migrateLogTables(); err != nil {
+		return err
+	}
+
+	if err := r.migrateParkingTables(); err != nil {
 		return err
 	}
 

@@ -182,6 +182,7 @@ func main() {
 	mux.Handle("/api/admin/users/remark", auth.RequireAdmin(tokenStore, userRepo, handler.NewUserRemarkHandler(repo)))
 	mux.Handle("/api/admin/users/custom-short-code", auth.RequireAdmin(tokenStore, userRepo, handler.NewUserCustomShortCodeHandler(repo)))
 	mux.Handle("/api/admin/users/", auth.RequireAdmin(tokenStore, userRepo, handler.NewUserSubscriptionsHandler(repo)))
+	mux.Handle("/api/admin/parking/", auth.RequireAdmin(tokenStore, userRepo, handler.NewParkingHandler(repo)))
 	securityLogHandler := handler.NewSecurityLogHandler(repo)
 	mux.Handle("/api/admin/security/", auth.RequireAdmin(tokenStore, userRepo, securityLogHandler))
 	mux.Handle("/api/admin/security/turnstile", auth.RequireAdmin(tokenStore, userRepo, handler.NewTurnstileSettingsHandler(repo)))

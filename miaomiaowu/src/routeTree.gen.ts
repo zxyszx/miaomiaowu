@@ -18,6 +18,7 @@ import { Route as SettingsRouteImport } from './routes/settings'
 import { Route as RulesRouteImport } from './routes/rules'
 import { Route as RuleProvidersRouteImport } from './routes/rule-providers'
 import { Route as ProbeRouteImport } from './routes/probe'
+import { Route as ParkingRouteImport } from './routes/parking'
 import { Route as NodesRouteImport } from './routes/nodes'
 import { Route as LogsRouteImport } from './routes/logs'
 import { Route as LoginRouteImport } from './routes/login'
@@ -77,6 +78,11 @@ const RuleProvidersRoute = RuleProvidersRouteImport.update({
 const ProbeRoute = ProbeRouteImport.update({
   id: '/probe',
   path: '/probe',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ParkingRoute = ParkingRouteImport.update({
+  id: '/parking',
+  path: '/parking',
   getParentRoute: () => rootRouteImport,
 } as any)
 const NodesRoute = NodesRouteImport.update({
@@ -164,6 +170,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/logs': typeof LogsRoute
   '/nodes': typeof NodesRouteWithChildren
+  '/parking': typeof ParkingRoute
   '/probe': typeof ProbeRoute
   '/rule-providers': typeof RuleProvidersRoute
   '/rules': typeof RulesRoute
@@ -188,6 +195,7 @@ export interface FileRoutesByTo {
   '/generator': typeof GeneratorRoute
   '/login': typeof LoginRoute
   '/logs': typeof LogsRoute
+  '/parking': typeof ParkingRoute
   '/probe': typeof ProbeRoute
   '/rule-providers': typeof RuleProvidersRoute
   '/rules': typeof RulesRoute
@@ -212,6 +220,7 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/logs': typeof LogsRoute
   '/nodes': typeof NodesRouteWithChildren
+  '/parking': typeof ParkingRoute
   '/probe': typeof ProbeRoute
   '/rule-providers': typeof RuleProvidersRoute
   '/rules': typeof RulesRoute
@@ -240,6 +249,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/logs'
     | '/nodes'
+    | '/parking'
     | '/probe'
     | '/rule-providers'
     | '/rules'
@@ -264,6 +274,7 @@ export interface FileRouteTypes {
     | '/generator'
     | '/login'
     | '/logs'
+    | '/parking'
     | '/probe'
     | '/rule-providers'
     | '/rules'
@@ -287,6 +298,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/logs'
     | '/nodes'
+    | '/parking'
     | '/probe'
     | '/rule-providers'
     | '/rules'
@@ -314,6 +326,7 @@ export interface RootRouteChildren {
   LoginRoute: typeof LoginRoute
   LogsRoute: typeof LogsRoute
   NodesRoute: typeof NodesRouteWithChildren
+  ParkingRoute: typeof ParkingRoute
   ProbeRoute: typeof ProbeRoute
   RuleProvidersRoute: typeof RuleProvidersRoute
   RulesRoute: typeof RulesRoute
@@ -389,6 +402,13 @@ declare module '@tanstack/react-router' {
       path: '/probe'
       fullPath: '/probe'
       preLoaderRoute: typeof ProbeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/parking': {
+      id: '/parking'
+      path: '/parking'
+      fullPath: '/parking'
+      preLoaderRoute: typeof ParkingRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/nodes': {
@@ -568,6 +588,7 @@ const rootRouteChildren: RootRouteChildren = {
   LoginRoute: LoginRoute,
   LogsRoute: LogsRoute,
   NodesRoute: NodesRouteWithChildren,
+  ParkingRoute: ParkingRoute,
   ProbeRoute: ProbeRoute,
   RuleProvidersRoute: RuleProvidersRoute,
   RulesRoute: RulesRoute,

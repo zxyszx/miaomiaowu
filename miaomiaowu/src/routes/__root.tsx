@@ -9,10 +9,9 @@ import { ReactQueryDevtools } from '@tanstack/react-query-devtools'
 import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
 import { useAuthStore } from '@/stores/auth-store'
 import { Toaster } from '@/components/ui/sonner'
-import { AnimeStarfield } from '@/components/anime-starfield'
 import { DebugFloatingViewer } from '@/components/debug-floating-viewer'
-import { NavigationProgress } from '@/components/navigation-progress'
 import { Topbar } from '@/components/layout/topbar'
+import { NavigationProgress } from '@/components/navigation-progress'
 
 function RootComponent() {
   const [isMobile, setIsMobile] = useState(false)
@@ -39,7 +38,6 @@ function RootComponent() {
   return (
     <>
       <NavigationProgress />
-      {auth.accessToken && <AnimeStarfield />}
       {showTopbar && <Topbar />}
       <Outlet />
       <DebugFloatingViewer />
